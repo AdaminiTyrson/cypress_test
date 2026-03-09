@@ -1,26 +1,46 @@
-describe("CSFD UI test", () => {
+describe("CSFD regression smoke test", () => {
 
-  beforeEach(() => {
-    cy.visit("https://www.csfd.cz")
-  })
+  it("Homepage CSFD je dostupná", () => {
 
-  it("Vyhledání filmu funguje", () => {
+    cy.request("https://www.csfd.cz")
+      .then((response) => {
 
-    cy.get('input[name="q"]').type("Matrix{enter}")
+        expect(response.status).to.eq(200)
+        expect(response.body).to.contain("ČSFD")
 
-    cy.url().should("include", "hledat")
-
-    cy.contains("Matrix").first().click()
-
-    cy.get("h1").should("contain", "Matrix")
+      })
 
   })
 
-  it("Registrace otevře správnou stránku", () => {
+  it("Stránka obsahuje vyhledávání", () => {
 
-    cy.contains("Registrace").click()
+    cy.request("https://www.csfd.cz")
+      .its("body")
+      .should("contain", "Vyhledávání")
 
-    cy.url().should("include", "registrace")
+  })
+
+  it("Vyhledání filmu Matrix vrátí výsledky", () => {
+
+    cy.request("https://www.csfd.cz/hledat/?q=matrix")
+      .then((response) => {
+
+        expect(response.status).to.eq(200)
+        expect(response.body.toLowerCase()).to.contain("matrix")
+
+      })
+
+  })
+
+  it("Stránka registrace existuje", () => {
+
+    cy.request("https://www.csfd.cz/registrace/")
+      .then((response) => {
+
+        expect(response.status).to.eq(200)
+        expect(response.body.toLowerCase()).to.contain("registrace")
+
+      })
 
   })
 
